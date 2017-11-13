@@ -81,7 +81,7 @@ Here is an example of an original image and an zoom in version of it:
 
 As shown in the figure, the difference between the original grayscale image and zoom in version is that the traffic sign in zoom in version almost covers the complete image. Helps to train the network to covers scenarios where picture is taken closer to the traffic sign. 
 
-Here is an example of an original image and an histogram eualized image:
+Here is an example of an original image and an zoom out version of it:
 
 ![alt text][img_zo]
 
