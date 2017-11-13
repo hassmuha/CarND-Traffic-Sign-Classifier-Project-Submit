@@ -56,13 +56,13 @@ Here is an exploratory visualization of the data set. It is a histogram showing 
 
 ####1. Describe how you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, and provide example images of the additional data. Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class, etc.)
 
-As a first step, I decided to convert the images to grayscale because as our classification is basically based on traffic sign and irespective of the color space the shape is more distint factor to recognize the image. After trial with both color and grayscale and looking at the result there was no significant improvement in classification in validation set. Moreover gray scale conversion reduce the size of input layer by exactly 3. 
+As a first step, I decided to convert the images to grayscale because as our classification is basically based on traffic sign and irespective of the color space the shape is more distinct factor to recognize the image. After trial with both color and grayscale and looking at the result there was no significant improvement in classification in validation set. Moreover gray scale conversion reduce the size of input layer by exactly 3. 
 
 Here is an example of a traffic sign image before and after grayscaling. 
 
 ![alt text][img_gray]
 
-As a last step, I normalized the image data because the data in input layer is distributed from 0 255 and to get numerical stability in the overall network this step is required. If we don't normalize it the hidden layer closer to input layer start influencing the network and moreover the input to the activation function for example RELU also becomes biased. keeping thr fact that all weights and biases of hidden layers are intialized by 0 mean and 0.1 sigma, I took 5 sigma as it is expected that 99.999% values of initialied weights and biases lies in this range. This correspond to shift the image from 0 to 255 to -0.5 to 0.5.
+As a last step, I normalized the image data because the data in input layer is distributed from 0 to 255 and to get numerical stability in the overall network this step is required. If we don't normalize it the hidden layer closer to input layer start influencing the network and moreover the input to the activation function for example RELU also becomes biased. keeping the fact that all weights and biases of hidden layers are intialized by 0 mean and 0.1 sigma, I took 5 sigma as it is expected that 99.999% values of initialied weights and biases lies in this range. This correspond to shift the image from 0 to 255 to -0.5 to 0.5.
 
 I decided to generate additional data because the more data samples covering different scenarios we have the stronger for the network to classify different scenarios. To add more data to the the data set, each image in the training dataset randomly generate clone based on either of the following 3 techniques:
 1) Histogram equalization to enhance the contrast of the images so that the shape of the traffic signs also becomes prominent 
@@ -121,47 +121,32 @@ To train the model, Loss function used was the reduce mean of the cross entropy 
 
 ####4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
-My final model results were:
+My final model results are:
 * training set accuracy of 98.5%
-* validation set accuracy of 97.4
-* test set accuracy of 94.6
+* validation set accuracy of 97.4%
+* test set accuracy of 94.6%
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
 I took the same network exactly from Lenet exercise done in the Convolution Neural Network section. As it produced quite good results for recognizing characters so expectation was in recognizing traffic signs where each sign is recognized by distinct shape or symbol, Lenel will produce some handsome results.
 
-* What were some problems with the initial architecture?
+Some problems with the initial architecture are
 - Initially color images were chosen that means size of the input layer is 3 times as compared if grayscale images were taken.
 - Normalization of input image
 - Augmentation of the dataset to cover more scenarios
 - No Dropout functionality present on fully connected layer for proving regularization.
 - Need of change of hyper parameters to get the best result on validation and test dataset
 
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
+Important design choices for the architecture was selection of convolution layers in the begining, activation based on Relu and fully conencted layers with dropout. As we have learned always activation in each layer means the network has learned new advanced patterns based on the simple patterns learned in previous layer. Hence for the first layers the goal is to identify the simple patterns (like edges, line, orientation and shape detection) first and for which we don't really need fully connected layer with lot of weights and biases to be optimized. In convolation layer strategy was adopted to increase depth (each plane has separate kernel that means each plane activated on distinct scenarios) while reducing the dimension from striding and pooling operation. As an activaiton function in each layer Relu was used to model the non-linear as well in each layer. Fully connected layers have lower dimension as output but they have lot of parameters (weights and biases) associated with it. The purpose of these layers is to train in such a way that they activates on high level features for example at the end it has connected to output layer with number of output equal to number of distant classes. Dropout on fully connected layer provide regularization, meaning next layer never rely on any specific activation to be present in previous layer and for the previous layer it becomes a must condition to adjust the parameters in such a way that reduntant information is always present to be communicated to next layer.
 
-- Grayscale conversion as described 'Design and Test a Model Architecture' question 1
-- Normalization of input image 'Design and Test a Model Architecture' question 1
-- Augmentation of the dataset to cover more scenarios as described in 'Design and Test a Model Architecture' question 1
-- Dropout functionality present on fully connected layer for proving regularization.
-- Need of change of hyper parameters to get the best result on validation and test dataset
+As described in detail in section 'Design and Test a Model Architecture' question 1 following preprossing steps has also been done:
+- Grayscale conversion
+- Normalization of input image
+- Augmentation of the dataset to cover more scenarios
 
-
-* Which parameters were tuned? How were they adjusted and why?
-I have defined following range of hyperparameters and to check which gives best result
-EPOCHS = 20,30,40,50 -> The more the iterations or EPOCH in the presence of slow learning rate will train the model to best results. I chose initially 30 but at the end 50 as the accuracy kept on increasing after 30 as well.
-rate = 0.001, 0.002, 0.003 -> I chose 0.002 as 0.001 converge quite slowly and gives same result in 70 iterations as compares to 0.002. While 0.003 always fluctuate a lot when it reaches the validation accuracy of 0.95.
-BATCH_SIZE = 128, 256 -> No major effect identified so kept as 128
-All the weights were initialization with random guassian distributtion of 0 mean and 0.1 sigma. This is required as wemake sure the weights are not biased at all initially. Changing in sigma to 0.2 will not give any drastic change in validation accuracy
-
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
-Important design choices for the architecture was selection of convolution layers in the begining, activation based on Relu and fully conencted layers with dropout. As we have learned always activation in each layer means the network has learned new advanced patterns based on the simple patterns learned in previous layer. Hence for the first layers the goal is to identify the simple patterns (like edges, line, orientation and shape detection) first and for which we don't really need fully connected layer with lot of weights and biases to be optimized. In convolation layer strategy was adopted to increase depth (each plane has separate kernel that means each plane activated on distint scenarios) while reducing the dimension from striding and pooling operation. As an activaiton function in each layer Relu was used to model the non-linear as well in each layer. Fully connected layers have lower dimension as output but they have lot of parameters (weights and biases) associated with it. The purpose of these layers is to train in such a way that they activates on high level features for example at the end it has connected to output layer with number of output equal to number of distant classes. Dropout on fully connected layer provide regularization, meaning next layer never rely on any specific activation to be present in previous layer and for the previous layer it becomes a must condition to adjust the parameters in such a way that reduntant information is always present to be communicated to next layer.
-
-If a well known architecture was chosen:
-* What architecture was chosen? 
-Lenet architecture was chosen and as it was originally designed for character recognition and as here where the texture and shape is the distint feature to identify I believe Lenet with some modification will work best for us as well.
-As seen the validation and test
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
+I have defined following ranges of hyperparameters and to check which gives best result:
+- EPOCHS = 20,30,40,50 -> The more the iterations or EPOCH in the presence of slow learning rate will train the model to best results. I chose initially 30 but at the end 50 as the accuracy kept on increasing after 30 as well.
+- Learning rate = 0.001, 0.002, 0.003 -> I chose 0.002 as 0.001 converge quite slowly and gives same result in 70 iterations as compares to 0.002. While 0.003 always fluctuate a lot when it reaches the validation accuracy of 0.95.
+- BATCH_SIZE = 128, 256 -> No major effect identified so kept as 128
+- All the weights were initialization with random guassian distributtion of 0 mean and 0.1 sigma. This is required as wemake sure the weights are not biased at all initially. Changing in sigma to 0.2 will not give any drastic change in validation accuracy
  
 
 ###Test a Model on New Images
